@@ -1,0 +1,128 @@
+
+### 2. `index.html`
+
+```html
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#080b13" />
+  <meta name="description" content="ATMOSPHERE — interaktywny symulator atmosfery i pogody na wirtualnej planecie." />
+  <title>ATMOSPHERE — Earth Control System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./css/main.css" />
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+      }
+    }
+  </script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="ATMOSPHERE — strona główna">
+        <span class="brand-mark"><i></i><i></i><i></i></span>
+        <span><strong>ATMOSPHERE</strong><small>EARTH CONTROL SYSTEM</small></span>
+      </a>
+      <div class="top-center">
+        <span class="live-dot"></span><span id="systemStatus">SILNIK GOTOWY</span>
+        <span class="top-divider"></span><span class="mono" id="simClock">DZIEŃ 001 · 00:00</span>
+      </div>
+      <div class="top-actions">
+        <button class="icon-button" id="saveButton" title="Zapisz świat" aria-label="Zapisz świat">▣</button>
+        <button class="icon-button" id="resetButton" title="Resetuj symulację" aria-label="Resetuj symulację">↺</button>
+        <button class="profile-button" id="aboutButton"><span class="profile-orb">A</span><span>OPERATOR</span></button>
+      </div>
+    </header>
+
+    <aside class="sidebar">
+      <div class="side-label">OBSZAR ROBOCZY</div>
+      <button class="nav-item active" data-panel="global"><span class="nav-icon">◎</span><span>Widok globalny</span><kbd>01</kbd></button>
+      <div class="side-label">STEROWANIE ŚWIATEM</div>
+      <button class="nav-item" data-panel="weather"><span class="nav-icon">◉</span><span>Pogoda</span><kbd>02</kbd></button>
+      <button class="nav-item" data-panel="storms"><span class="nav-icon">ϟ</span><span>Burze i zjawiska</span><kbd>03</kbd></button>
+      <button class="nav-item" data-panel="climate"><span class="nav-icon">◌</span><span>Klimat</span><kbd>04</kbd></button>
+      <button class="nav-item" data-panel="wind"><span class="nav-icon">≋</span><span>Wiatr</span><kbd>05</kbd></button>
+      <button class="nav-item" data-panel="clouds"><span class="nav-icon">☁</span><span>Chmury i opady</span><kbd>06</kbd></button>
+      <div class="side-label">NARZĘDZIA</div>
+      <button class="nav-item" data-panel="time"><span class="nav-icon">◷</span><span>Kontrola czasu</span><kbd>07</kbd></button>
+      <button class="nav-item" data-panel="scenarios"><span class="nav-icon">◇</span><span>Scenariusze</span><kbd>08</kbd></button>
+      <button class="nav-item" data-panel="analytics"><span class="nav-icon">▥</span><span>Analityka planety</span><kbd>09</kbd></button>
+      <button class="nav-item" data-panel="god"><span class="nav-icon">✳</span><span>God Mode</span><kbd>10</kbd></button>
+      <div class="sidebar-bottom">
+        <div class="mini-status"><span class="live-dot"></span><div><b>SYMULACJA LOKALNA</b><small>Dane zapisują się w tej przeglądarce</small></div></div>
+        <div class="version">ATMOSPHERE CORE <span>v1.0.0</span></div>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <section class="workspace-heading">
+        <div><div class="eyebrow">CENTRUM KONTROLI PLANETY / <span id="sectionName">WIDOK GLOBALNY</span></div><h1 id="pageTitle">Podgląd planety<span>.</span></h1><p id="pageDescription">Obserwuj świat, wybieraj obszary i modyfikuj jego atmosferę w czasie rzeczywistym.</p></div>
+        <div class="heading-tools">
+          <button class="soft-button" id="autoRotateButton"><span>⟳</span> Obrót automatyczny</button>
+          <button class="primary-button" id="pauseButton"><span id="pauseIcon">Ⅱ</span> <span id="pauseText">Wstrzymaj</span></button>
+        </div>
+      </section>
+
+      <section class="dashboard-grid">
+        <div class="planet-card">
+          <div class="planet-topline"><span class="panel-kicker"><i class="tiny-live"></i> PODGLĄD 3D / ZIEMIA</span><span class="mono" id="selectedRegionLabel">OBSZAR: GLOBALNY</span></div>
+          <div class="planet-stage" id="planetStage">
+            <div id="globeMount"></div>
+            <div class="planet-vignette"></div>
+            <div class="globe-hud hud-left"><span>WYSOKOŚĆ</span><b id="altitudeValue">1.0×</b><span class="hud-line"></span><span>TRYB</span><b>SANDBOX</b></div>
+            <div class="globe-hud hud-right"><span>WSPÓŁRZĘDNE</span><b id="coordsValue">0.0° / 0.0°</b><span class="hud-line"></span><span>WARSTWA</span><b id="layerValue">ATMOSFERA</b></div>
+            <div class="planet-center-tag"><span class="crosshair">+</span><span>PLANETA ZIEMIA</span></div>
+            <div class="planet-controls"><button id="zoomOut" title="Oddal">−</button><button id="zoomIn" title="Przybliż">+</button><button id="resetView" title="Resetuj widok">⌖</button></div>
+            <div class="planet-bottom-overlay"><span><i class="live-dot"></i> SYMULACJA AKTYWNA</span><span id="weatherLabel">WARUNKI: ZMIENNE</span></div>
+          </div>
+          <div class="planet-footer">
+            <div class="layer-switch"><span>WARSTWY</span><button class="layer-chip active" data-layer="atmosphere">Atmosfera</button><button class="layer-chip" data-layer="clouds">Chmury</button><button class="layer-chip" data-layer="temperature">Temperatura</button><button class="layer-chip" data-layer="wind">Wiatr</button></div>
+            <span class="drag-hint">PRZECIĄGNIJ, ABY OBRÓCIĆ GLOB</span>
+          </div>
+        </div>
+
+        <aside class="control-card" id="controlCard">
+          <div class="card-heading"><div><span class="panel-kicker">PANEL OPERATORA</span><h2 id="controlTitle">Warunki atmosferyczne</h2></div><span class="status-pill">SANDBOX</span></div>
+          <div class="region-select-wrap"><label for="regionSelect">ZAKRES STEROWANIA</label><select id="regionSelect"><option value="global">Cała planeta</option><option value="europe">Europa</option><option value="poland">Polska</option><option value="north-america">Ameryka Północna</option><option value="africa">Afryka</option><option value="asia">Azja</option><option value="oceans">Oceany</option></select></div>
+          <div id="dynamicControls">
+            <div class="control-row"><div class="control-label"><label for="temperature">Temperatura</label><output id="temperatureOut">+14°C</output></div><input id="temperature" type="range" min="-100" max="100" value="14"><div class="range-labels"><span>−100°C</span><span>+100°C</span></div></div>
+            <div class="control-row"><div class="control-label"><label for="humidity">Wilgotność</label><output id="humidityOut">58%</output></div><input id="humidity" type="range" min="0" max="100" value="58"><div class="range-labels"><span>0%</span><span>100%</span></div></div>
+            <div class="control-row"><div class="control-label"><label for="windSpeed">Prędkość wiatru</label><output id="windSpeedOut">18 km/h</output></div><input id="windSpeed" type="range" min="0" max="500" value="18"><div class="range-labels"><span>0 km/h</span><span>500 km/h</span></div></div>
+            <div class="control-row"><div class="control-label"><label for="cloudCover">Zachmurzenie</label><output id="cloudCoverOut">42%</output></div><input id="cloudCover" type="range" min="0" max="100" value="42"><div class="range-labels"><span>0%</span><span>100%</span></div></div>
+            <div class="control-row"><div class="control-label"><label for="pressure">Ciśnienie</label><output id="pressureOut">1013 hPa</output></div><input id="pressure" type="range" min="850" max="1100" value="1013"><div class="range-labels"><span>850 hPa</span><span>1100 hPa</span></div></div>
+          </div>
+          <div class="control-footer"><span id="changeStatus">Zmiany zastosowane automatycznie</span><button class="reset-small" id="resetControls">Przywróć domyślne ↺</button></div>
+        </aside>
+      </section>
+
+      <section class="metrics-grid">
+        <article class="metric-card"><div class="metric-head"><span>ŚREDNIA TEMPERATURA</span><span class="metric-icon warm">°</span></div><div class="metric-value" id="metricTemp">+14.0<span>°C</span></div><div class="metric-foot"><span class="metric-bar"><i id="tempBar"></i></span><small>Wartość symulowana</small></div></article>
+        <article class="metric-card"><div class="metric-head"><span>WILGOTNOŚĆ</span><span class="metric-icon blue">◌</span></div><div class="metric-value" id="metricHumidity">58<span>%</span></div><div class="metric-foot"><span class="metric-bar"><i id="humidityBar"></i></span><small>Poziom globalny</small></div></article>
+        <article class="metric-card"><div class="metric-head"><span>WIATR POWIERZCHNIOWY</span><span class="metric-icon cyan">≋</span></div><div class="metric-value" id="metricWind">18<span>km/h</span></div><div class="metric-foot"><span class="metric-bar"><i id="windBar"></i></span><small>Prędkość średnia</small></div></article>
+        <article class="metric-card"><div class="metric-head"><span>AKTYWNE ZJAWISKA</span><span class="metric-icon purple">ϟ</span></div><div class="metric-value" id="metricEvents">00<span> / 06</span></div><div class="metric-foot"><span class="event-text" id="eventSummary">Brak aktywnych zjawisk</span></div></article>
+      </section>
+
+      <section class="bottom-grid">
+        <article class="timeline-card">
+          <div class="card-heading"><div><span class="panel-kicker">CZAS SYMULACJI</span><h2>Oś czasu</h2></div><span class="mono" id="timeSpeedLabel">PRĘDKOŚĆ ×1</span></div>
+          <div class="timeline-controls"><button class="round-control" id="timeBack">−</button><button class="round-control play-control" id="timePlay">Ⅱ</button><button class="round-control" id="timeForward">+</button><div class="time-readout"><b id="timelineTime">00:00:00</b><small>WIRTUALNY CZAS</small></div><select id="timeSpeed"><option value="1">×1</option><option value="10">×10</option><option value="60">×60</option><option value="300">×300</option><option value="1000">×1000</option></select></div>
+          <div class="timeline-track"><div class="timeline-progress" id="timelineProgress"></div><input id="timelineScrubber" type="range" min="0" max="1440" value="0"></div>
+          <div class="timeline-labels"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
+        </article>
+        <article class="events-card"><div class="card-heading"><div><span class="panel-kicker">MONITOR ZJAWISK</span><h2>Aktywne procesy</h2></div><button class="text-button" data-panel="storms">Otwórz moduł →</button></div><div id="eventList" class="event-list"><div class="empty-event"><span>◌</span><div><b>Brak aktywnych zjawisk</b><small>Utwórz zjawisko, aby obserwować je tutaj.</small></div></div></div></article>
+      </section>
+      <footer class="app-footer"><span>ATMOSPHERE CORE <b>1.0.0</b></span><span>WIRTUALNY ŚWIAT · NIE JEST PROGNOZĄ POGODY</span><span>WYKORZYSTANIE GPU: <b id="gpuStatus">WEBGL</b></span></footer>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <div class="modal-backdrop" id="modalBackdrop"><div class="modal"><button class="modal-close" id="modalClose">×</button><div class="modal-symbol">✳</div><span class="panel-kicker">ATMOSPHERE CORE</span><h2>Twój świat. Twoje zasady.</h2><p>ATMOSPHERE to lokalny symulator eksperymentalny. Zmiany dotyczą wyłącznie wirtualnej planety i nie wpływają na rzeczywistą pogodę.</p><button class="primary-button" id="modalOk">Rozumiem</button></div></div>
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>

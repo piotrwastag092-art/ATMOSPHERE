@@ -1,0 +1,52 @@
+import { createSimulation } from "./simulation/engine.js";
+import { createGlobe } from "./visual/globe.js";
+import { bindInterface } from "./ui/interface.js";
+
+const simulation = createSimulation();
+
+let globe = null;
+
+const mount = document.getElementById("globeMount");
+
+try {
+  globe = createGlobe(mount);
+  document.getElementById("gpuStatus").textContent = "WEBGL";
+} catch (error) {
+  console.error("Nie udało się uruchomić globu 3D:", error);
+
+  mount.innerHTML = `
+    <div class="panel-placeholder">
+      <div class="big-icon">◎</div>
+      <h3>Widok 3D niedostępny</h3>
+      <p>
+        Twoja przeglądarka nie mogła uruchomić WebGL.
+        Pozostałe funkcje symulatora nadal mogą działać.
+        Spróbuj włączyć akcelerację sprzętową lub użyć innej przeglądarki.
+      </p>
+    </div>
+  `;
+
+  document.getElementById("gpuStatus").textContent = "NIEDOSTĘPNE";
+}
+
+bindInterface(simulation, globe);
+
+simulation.onChange((state) => {
+  if (globe) {
+    globe.update(state);
+  }
+});
+
+window.addEventListener("resize", () => {
+  if (globe) {
+    globe.resize();
+  }
+});
+
+window.addEventListener("beforeunload", () => {
+  simulation.destroy();
+
+  if (globe) {
+    globe.destroy();
+  }
+});
